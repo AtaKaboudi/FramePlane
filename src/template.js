@@ -1,10 +1,10 @@
 export class Template {
-	constructor(n, width, height, elements) {
+	constructor(n, width, height, snp, elements) {
 		this.name = n;
 		this.elements = elements;
 		this.width = width;
 		this.height = height;
-		this.snapshot;
+		this.snapshot = snp;
 		this.instanciateTemplateInChildren();
 	}
 	instanciateTemplateInChildren() {
@@ -12,29 +12,7 @@ export class Template {
 			e.setTemplate(this);
 		});
 	}
-	resize(rowIndex, columnIndex) {
-		let row = [];
-		let column = [];
-		let cumulativeWidth = 0;
-		let cumulativeHeight = 0;
-		this.elements.forEach((e) => {
-			if (e.rowIndex == rowIndex) {
-				row.push(e);
-				cumulativeWidth += e.width;
-			}
-			if (columnIndex == e.columnIndex) {
-				column.push(e);
-				cumulativeHeight += e.height;
-			}
-		});
-		if (cumulativeWidth > this.width) {
-			console.log(cumulativeWidth, this.width);
-			this.updateElementsWidth(cumulativeWidth, row);
-		}
-		if (cumulativeHeight > this.height) {
-			console.log("b");
-		}
-	}
+	resize(rowIndex, columnIndex) {}
 	updateElementsWidth(totalElementsWidth, row) {
 		row.forEach((e, i) => {
 			e.width = (e.width / totalElementsWidth) * this.width - e.frames.width;
@@ -64,34 +42,60 @@ export class Template {
 			});
 		}
 	}
-	getController() {
-		let options = [
-			["Tempalte A", "../assets/templateA.png"],
-			["Template B", "-"],
-			["Template C", "-"],
-		];
-		let select = document.createElement("div");
-		select.id = "templateSelect";
+	renderController(DOM_SELECT, DOM_CONTROLLER, draw) {
+		let option = document.createElement("div");
+		option.id = "individualTemplateOption";
+		option.value = this.name;
+		let label = document.createElement("label");
+		label.innerHTML = this.name;
 
-		let title = document.createElement("label");
-		title.innerHTML = "Template :";
-		select.appendChild(title);
+		let image = document.createElement("img");
+		image.src = this.snapshot;
+		image.id = "tempalteSnapshot";
 
-		options.forEach((e) => {
-			let option = document.createElement("div");
+		//	option.addEventListener("click", () => {
+		this.elements.forEach((e) => {
+			e.draw(draw);
+			let individualController = e.getController();
+			DOM_CONTROLLER.appendChild(individualController);
+		});
+		//	});
+		option.appendChild(image);
+		option.appendChild(label);
 
-			let label = document.createElement("label");
-			label.innerHTML = e[0];
-
-			let image = document.createElement("img");
-			image.src = e[1];
-			image.id = "tempalteSnapshot";
-
-			option.appendChild(image);
-			option.appendChild(label);
-			select.appendChild(option);
+		DOM_SELECT.appendChild(option);
+	}
+	reposition(trigger, distance) {
+		console.log(distance);
+		this.elements.forEach((e) => {
+			if (
+				e.rowIndex > trigger.rowIndex &&
+				e.columnIndex == trigger.columnIndex
+			) {
+				e.x -= distance;
+				e.redraw();
+			}
+		});
+	}
+	checkOverFlow() {
+		//Resizes all elements in case of overFlow
+		// retreives widths and Heights according Columnindex and RownIndex
+		let cumulativeWidth = [0, 0, 0, 0];
+		let cumulativeHeight = [0, 0, 0, 0];
+		this.elements.forEach((e) => {
+			cumulativeWidth[e.columnIndex] += e.width + 2 * e.frames.width;
+			cumulativeHeight[e.rowIndex] += e.height + 2 * e.frames.height;
 		});
 
-		return select;
+		cumulativeWidth.forEach((w, i) => {
+			if (w > this.width) {
+				resizeOnOverflow(i);
+			}
+		});
+		cumulativeHeight.forEach((h, i) => {
+			if (h > this.height) {
+				resizeOnOverflow(i);
+			}
+		});
 	}
 }

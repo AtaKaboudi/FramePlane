@@ -63,17 +63,14 @@ export class Element {
 			let newFramesWidth = parseInt(frameWidthInput.value);
 
 			this.reposition(newWidth, newHeight, newFramesWidth, newFramesHeight);
-
 			this.width = newWidth;
 			this.height = newHeight;
 			this.frames.width = newFramesWidth;
 			this.frames.height = newFramesHeight;
 
+			this.checkOverFlow();
 			this.clear();
-
 			this.SVGObject.attr({ fill: "red" });
-			console.log(this.x, this.y);
-			this.resize();
 			this.draw(this.drawSVG);
 		});
 
@@ -89,38 +86,31 @@ export class Element {
 
 		return div;
 	}
+	checkOverFlow() {
+		this.template.checkOverFlow();
+	}
+
 	reposition(newWidth, newHeight, newFrameWidth, newFrameHeight) {
-		console.log(this.fixedSide, newFrameWidth, this.frames.width);
 		if (this.fixedSide == "RIGHT") {
-			if (newWidth < this.width) {
-				this.x += this.width - newWidth;
-			} else if (newWidth > this.width) {
-				this.x -= newWidth - this.width;
-			}
-			if (newHeight < this.height) {
-				this.y += this.height - newHeight;
-			} else if (newHeight > this.height) {
-				this.y -= newHeight - this.height;
-			}
+			this.x -= newWidth - this.width;
+			this.y -= newHeight - this.height;
+			this.y -= newFrameHeight - this.frames.height;
+		} else if (this.fixedSide == "LEFT" || this.fixedSide == "RIGHT_LEFT") {
+			this.triggerNextElementReposition(this.width - newWidth);
+
+			this.y += this.height - newHeight;
+
 			if (newFrameWidth > this.frames.width) {
-				this.x -= newFrameWidth - this.frames.width;
-			}
-			if (newFrameHeight > this.frames.height) {
-				this.y -= newFrameHeight - this.frames.height;
+				this.x += newFrameWidth - this.frames.width;
 			}
 			if (newFrameWidth < this.frames.width) {
-				this.x += this.frames.width - newFrameWidth;
+				this.x -= this.frames.width - newFrameWidth;
 			}
-
-			if (newFrameHeight < this.frames.height) {
-				this.y += this.frames.height - newFrameHeight;
-			}
-		} else if (this.fixedSide == "LEFT") {
 		}
 	}
-	resize() {
-		// triggers template resize if input exeeds present maxwidth and max height;
-		//	this.template.resize(this.SVGObject, this.rowIndex, this.columnIndex);
+	triggerNextElementReposition(distance) {
+		//triggers next element to reposition.
+		this.template.reposition(this, distance);
 	}
 	redraw() {
 		this.clear();

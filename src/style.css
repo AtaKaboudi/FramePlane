@@ -1,7 +1,7 @@
 form {
 	position: absolute;
 	left: 1100px;
-	top: 400px;
+	top: 50px;
 	display: flex;
 	flex-direction: column;
 	width: 300px;
@@ -45,6 +45,7 @@ form label {
 #templateSelect div label {
 	margin: 1vh 1vw;
 	text-align: center;
+	width: 100%;
 }
 
 #tempalteSnapshot {
