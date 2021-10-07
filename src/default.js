@@ -17,7 +17,8 @@ export function defaultElements(width, height) {
 			"#00A2ED",
 			defaultFrameL,
 			0,
-			0
+			0,
+			"RIGHT"
 		),
 		new Element(
 			"WINDOW_R",
@@ -28,8 +29,9 @@ export function defaultElements(width, height) {
 			(height * 1) / 3,
 			"#00A2ED",
 			defaultFrameR,
+			1,
 			0,
-			1
+			"LEFT"
 		),
 	]);
 	return templateA;

@@ -3,7 +3,7 @@ export class Element {
 	SVGObject;
 	template;
 
-	constructor(n, t, x, y, w, h, c, f, ri, ci) {
+	constructor(n, t, x, y, w, h, c, f, ri, ci, fixedSide) {
 		this.name = n;
 		this.type = t;
 		this.width = w;
@@ -14,6 +14,7 @@ export class Element {
 		this.y = y;
 		this.rowIndex = ri;
 		this.columnIndex = ci;
+		this.fixedSide = fixedSide;
 	}
 
 	draw(draw) {
@@ -56,22 +57,22 @@ export class Element {
 		btn.addEventListener("click", (e) => {
 			e.preventDefault();
 
-			this.width = parseInt(widthInput.value);
-			this.height = parseInt(heightInput.value);
-			this.frames.height = parseInt(frameHeightInput.value);
-			this.frames.width = parseInt(frameWidthInput.value);
-			console.log(
-				this.width,
-				this.height,
-				this.frames.height,
-				this.frames.width
-			);
+			let newWidth = parseInt(widthInput.value);
+			let newHeight = parseInt(heightInput.value);
+			let newFramesHeight = parseInt(frameHeightInput.value);
+			let newFramesWidth = parseInt(frameWidthInput.value);
+
+			this.reposition(newWidth, newHeight, newFramesWidth, newFramesHeight);
+
+			this.width = newWidth;
+			this.height = newHeight;
+			this.frames.width = newFramesWidth;
+			this.frames.height = newFramesHeight;
+
 			this.clear();
 
 			this.SVGObject.attr({ fill: "red" });
 			console.log(this.x, this.y);
-			debugger;
-			this.reposition(2);
 			this.resize();
 			this.draw(this.drawSVG);
 		});
@@ -88,19 +89,40 @@ export class Element {
 
 		return div;
 	}
-	reposition(siblingIndex) {
-		//on Input change repositioning is sometimes requried relative to other elements displayed
-		let sibling = this.drawSVG.get(0);
-		this.x = sibling.x() - this.frames.width - this.width;
-		this.y = sibling.y() + sibling.height() - this.height - this.frames.height;
-		this.clear();
-		this.draw();
+	reposition(newWidth, newHeight, newFrameWidth, newFrameHeight) {
+		console.log(this.fixedSide, newFrameWidth, this.frames.width);
+		if (this.fixedSide == "RIGHT") {
+			if (newWidth < this.width) {
+				this.x += this.width - newWidth;
+			} else if (newWidth > this.width) {
+				this.x -= newWidth - this.width;
+			}
+			if (newHeight < this.height) {
+				this.y += this.height - newHeight;
+			} else if (newHeight > this.height) {
+				this.y -= newHeight - this.height;
+			}
+			if (newFrameWidth > this.frames.width) {
+				this.x -= newFrameWidth - this.frames.width;
+			}
+			if (newFrameHeight > this.frames.height) {
+				this.y -= newFrameHeight - this.frames.height;
+			}
+			if (newFrameWidth < this.frames.width) {
+				this.x += this.frames.width - newFrameWidth;
+			}
+
+			if (newFrameHeight < this.frames.height) {
+				this.y += this.frames.height - newFrameHeight;
+			}
+		} else if (this.fixedSide == "LEFT") {
+		}
 	}
 	resize() {
 		// triggers template resize if input exeeds present maxwidth and max height;
-		this.template.resize(this.rowIndex, this.columnIndex);
+		//	this.template.resize(this.SVGObject, this.rowIndex, this.columnIndex);
 	}
-	redraw(color) {
+	redraw() {
 		this.clear();
 		this.draw();
 	}

@@ -44,6 +44,26 @@ export class Template {
 			e.redraw();
 		});
 	}
+	repositionElement(element, direction) {
+		if (direction == "RIGHT") {
+			this.elements.forEach((e) => {
+				if (
+					e.rowIndex == element.rowIndex + 1 &&
+					e.columnIndex == element.columnIndex
+				) {
+					element.x =
+						e.x - e.frames.width - element.width - element.frames.width;
+					element.y =
+						e.y +
+						e.height +
+						e.frames.height -
+						element.height -
+						element.frames.height;
+					element.redraw();
+				}
+			});
+		}
+	}
 	getController() {
 		let options = [
 			["Tempalte A", "../assets/templateA.png"],
